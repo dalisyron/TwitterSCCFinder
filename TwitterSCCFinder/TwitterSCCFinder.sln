@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2041
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwitterSCCFinder", "TwitterSCCFinder\TwitterSCCFinder.csproj", "{C8DB8A40-1EC7-49DC-84D8-78B655995EF9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C8DB8A40-1EC7-49DC-84D8-78B655995EF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8DB8A40-1EC7-49DC-84D8-78B655995EF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8DB8A40-1EC7-49DC-84D8-78B655995EF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8DB8A40-1EC7-49DC-84D8-78B655995EF9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AF471EC6-3DE5-4FD7-8566-F269DCC4DCA1}
+	EndGlobalSection
+EndGlobal
