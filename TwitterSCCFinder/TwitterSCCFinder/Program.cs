@@ -2,41 +2,78 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-
-//
-// You need to first add the "LinqToTwitter" nuget package from 
-// nuget package manager (right click on solution...)
-// 
+using System.Collections.Generic;
 
 namespace TwitterTest
 {
     class Program
     {
+        private static TwitterContext twC;
+
+        static List <string> getFriends(string user_name)
+        {
+            var user = twC.User.Where(u => u.Type == UserType.Show && u.ScreenName == user_name)
+                .SingleOrDefault();
+
+            var followerBy100s = twC.Friendship
+                .Where(f => f.Type == FriendshipType.FriendIDs && f.ScreenName == user.ScreenName)
+                .SingleOrDefault()?.IDInfo.IDs
+                .Select((id, idx) => new { id, idx })
+                .GroupBy(e => e.idx / 100)
+                .Select(g => string.Join(",", g.Select(e => e.id)));
+
+            var result = followerBy100s.SelectMany(ids => twC.User.Where(u => u.Type == UserType.Lookup && u.UserIdList == ids));
+            List<string> res = new List<string>();
+            
+            foreach (User r in result)
+            {
+                res.Add(r.ScreenNameResponse);
+            }
+            return res;
+        }
+
+        static List <string> getFollowers(string user_name)
+        {
+            var user = twC.User.Where(u => u.Type == UserType.Show && u.ScreenName == user_name)
+                .SingleOrDefault();
+
+            var followerBy100s = twC.Friendship
+                .Where(f => f.Type == FriendshipType.FollowerIDs && f.ScreenName == user.ScreenName)
+                .SingleOrDefault()?.IDInfo.IDs
+                .Select((id, idx) => new { id, idx })
+                .GroupBy(e => e.idx / 100)
+                .Select(g => string.Join(",", g.Select(e => e.id)));
+
+            var result = followerBy100s.SelectMany(ids => twC.User.Where(u => u.Type == UserType.Lookup && u.UserIdList == ids));
+            List<string> res = new List<string>();
+
+            foreach (User r in result)
+            {
+                res.Add(r.ScreenNameResponse);
+            }
+            return res;
+        }
+
+        static bool Follows(string source_user, string dest_user)
+        {
+            var friendship =
+                (from friend in twC.Friendship
+                 where friend.Type == FriendshipType.Show &&
+                       friend.SourceScreenName == source_user &&
+                       friend.TargetScreenName == dest_user
+                 select friend)
+                .First();
+
+            return friendship.TargetRelationship.FollowedBy;
+        }
+
         static void Main(string[] args)
         {
             IAuthorizer token = GetOauthToken();
-            using (TwitterContext twC = new TwitterContext(token))
-            {
-                var user = twC.User.Where(u => u.Type == UserType.Show && u.ScreenName == "DevCampIUST")
-                    .SingleOrDefault();
+            twC = new TwitterContext(token);
 
-                var followerBy100s = twC.Friendship
-                    .Where(f => f.Type == FriendshipType.FriendIDs && f.ScreenName == user.ScreenName)
-                    .SingleOrDefault()?.IDInfo.IDs
-                    .Select((id, idx) => new { id, idx })
-                    .GroupBy(e => e.idx / 100)
-                    .Select(g => string.Join(",", g.Select(e => e.id)));
-
-                var result = followerBy100s.SelectMany(ids => twC.User.Where(u => u.Type == UserType.Lookup && u.UserIdList == ids));
-
-                Console.WriteLine(user.ScreenNameResponse);
-
-                foreach (User r in result)
-                {
-                    Console.WriteLine(r.ScreenNameResponse);
-                }
-                Console.Read();
-            }
+            
+            Console.Read();
         }
 
         private static IAuthorizer GetOauthToken()
