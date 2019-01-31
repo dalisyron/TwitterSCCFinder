@@ -23,6 +23,7 @@ namespace TwitterTest
                 .GroupBy(e => e.idx / 100)
                 .Select(g => string.Join(",", g.Select(e => e.id)));
             List<string> res = new List<string>();
+            //author
             foreach (string s in followerBy100s)
             {
                 res.Add(s);
