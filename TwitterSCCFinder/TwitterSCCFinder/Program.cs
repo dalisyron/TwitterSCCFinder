@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Json.Net;
+using Newtonsoft.Json;
 
 namespace TwitterTest
 {
@@ -275,23 +277,58 @@ namespace TwitterTest
             {
                 user_ids = Propagate(init_users, 5);
             }
-
-            if (File.Exists("jaklsdfjklajsdklfjalskddjfl.txt"))
+            foreach (string user in user_ids)
             {
+                Console.WriteLine(user);
+            }
+            if (File.Exists(TwitterSCCFinder.Settings.data_path + "\\friends.JSON"))
+            {
+                Console.WriteLine("Located neighbors history");
 
-            } else
+                string json = File.ReadAllText(TwitterSCCFinder.Settings.data_path + "\\friends.JSON");
+                var values = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+                foreach (KeyValuePair<string, string> user in values)
+                {
+                    adjacencyList[user.Key] = user.Value.Split(',').ToArray().ToList();
+                    if (adjacencyList[user.Key][0] == "")
+                    {
+                        adjacencyList[user.Key] = new List<string>();
+                    }
+                }
+            }
+            else
             {
                 adjacencyList = getAdjacencyList(user_ids);
             }
+            List<string> node_labels = new List<string>();
+            SortedDictionary<string, int> ind = new SortedDictionary<string, int>();
+            
+            int cnt = 0;
             foreach (KeyValuePair<string, List<string>> user in adjacencyList)
             {
-                Console.Write(user.Key + " ");
-                foreach(string v in user.Value)
-                {
-                    Console.Write(v + ",");
-                }
-                Console.WriteLine("---");
+                cnt += adjacencyList[user.Key].Count;
+                node_labels.Add(user.Key);
             }
+            for (int i = 0; i < node_labels.Count; i++)
+            {
+                ind[node_labels[i]] = i;
+            }
+            long[][] edges = new long[cnt][];
+            int cur_ind = 0;
+            foreach (KeyValuePair<string, List<string>> user in adjacencyList)
+            {
+                foreach(string v in adjacencyList[user.Key])
+                {
+                    edges[cur_ind] = new long[2];
+                    edges[cur_ind][0] = ind[user.Key];
+                    edges[cur_ind][1] = ind[v];
+                    cur_ind++;
+                }
+            }
+            long ans = SCCAlgorithm.StronglyConnected.Solve(node_labels.Count, edges);
+            Console.WriteLine(node_labels.Count);
+            Console.WriteLine(ans);
+
             Console.Read();
         }
 
